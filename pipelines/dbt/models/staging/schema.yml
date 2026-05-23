@@ -1,0 +1,5 @@
+version: 2
+
+models:
+  - name: stg_events_orders
+    description: Normalized inbound order events landing from Snowflake external stage.

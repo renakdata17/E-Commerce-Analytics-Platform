@@ -1,0 +1,17 @@
+# Copy to ~/.dbt/profiles.yml and inject secrets via env vars.
+ecommerce_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ./dev.duckdb
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: ANALYST
+      database: ANALYTICS
+      warehouse: COMPUTE_WH
+      schema: MARTS
+      threads: 4
