@@ -21,11 +21,16 @@ def make_producer() -> KafkaProducer:
 def publish_example(topic: str = "events.clicks") -> None:
     producer = make_producer()
     payload = {
-        "event_id": "stub-001",
+        "schema_version": 1,
+        "event_id": "evt_click_demo_001",
         "occurred_at": datetime.now(tz=UTC).isoformat(),
-        "sku": "DEMO-SKU",
+        "sku": "SKU-WOOL-CAR-COAT",
+        "visitor_id": "demo-visitor-01",
+        "session_id": "demo-session-alpha",
+        "referrer": "homepage",
+        "millis_on_page_hint": 420,
     }
-    future = producer.send(topic, key=payload["event_id"], value=payload)
+    future = producer.send(topic, key=payload["visitor_id"], value=payload)
     future.add_errback(lambda exc: logger.error("kafka send failed: %s", exc))
     producer.flush(timeout=10)
     logger.info("Published to %s: %s", topic, payload)

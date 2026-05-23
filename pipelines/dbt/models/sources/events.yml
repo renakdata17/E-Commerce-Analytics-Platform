@@ -1,0 +1,7 @@
+sources:
+  - name: raw_clickstream
+    database: ANALYTICS
+    schema: LANDING_EVENTS
+    tables:
+      - name: events_clicks
+        description: Web + mobile SKU-level engagement stream landing from Glue/Lake ingestion.

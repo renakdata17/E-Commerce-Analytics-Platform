@@ -28,14 +28,34 @@ data-quality/expectations/  Great Expectations suites
 tests/                 Unit + integration tests
 ```
 
+## Demo storyline: Acme Outfitters
+
+The repo ships an opinionated-but-runnable exemplar retailer:
+
+| Flow | Behaviour |
+|------|-----------|
+| **Catalogue ingestion** | `services/api/scripts/seed_catalog.py` creates `WEST-DC` stocking four hero SKUs (wool car coat, running shoe, chino shell, ultralite shell). |
+| **Checkout** | `POST /api/v1/checkout` pessimistically locks `inventory_items`, decrements availability, mocks payment → `events.orders`/`events.inventory`, bumps Redis rollup hashes, emits Celery receipt + reorder hooks. |
+| **Click telemetry** | `POST /api/v1/events/clicks/batch` mirrors storefront sessions into `events.clicks` (+ channel hint metadata). |
+| **Live dashboards** | `GET /api/v1/ws/live-metrics` consumes Redis `dashboard:signals` broadcasts written during checkout alongside keep-alive pings for stale proxies. |
+| **Analytics contracts** | `GET /graphql` exposes catalogue + fulfilment-hub hints for analysts tooling (GraphiQL bundled). JWT-gated endpoints live under `/api/v1/analyst`. |
+
+Supporting services:
+
+- **`services/auth`**: Issues OAuth2 password tokens validated by the commerce API (`python-jose`, shared `JWT_SECRET`).
+- **`services/workers`**: Implements receipt + escalation Celery stubs (`merchant_workers.tasks`).
+
+Kafka note: installs default to pure-Python stacks so Windows/Python 3.14 agents pass CI—install `extras/kafka-async.txt` when you compile `aiokafka` successfully.
+
 ## Local development
 
 See `infra/README.md` for Compose services (Kafka, PostgreSQL, Redis, MinIO) and bootstrap notes.
 
-### Service quickstarts
+### Developer quickstarts
 
-- **API:** `cd services/api && pip install -r requirements.txt && uvicorn app.main:app --reload`
-- **Workers:** Redis broker URL must match Compose (documented in `services/workers/README.md`)
+- **Operational API:** Follow `services/api/README.md` (PYTHONPATH/Kafka nuances).
+- **Auth service:** `cd services/auth && pip install -r requirements.txt`, set `JWT_SECRET`, then `python -m uvicorn app.main:app --reload --port 8010`.
+- **Workers:** Ensure `CELERY_BROKER_URL` matches Compose Redis and `PYTHONPATH` includes repo `libs/` + `services/workers/` for `merchant_workers.tasks`.
 
 ## Roles (ownership)
 
@@ -45,4 +65,4 @@ See `infra/README.md` for Compose services (Kafka, PostgreSQL, Redis, MinIO) and
 
 ---
 
-This repository is a structured baseline; extend each subsystem with domain-specific schemas and workloads.
+This codebase is deliberately dense: it stitches operational commerce with streaming contracts, Celery choreography, Redis fan-out, Snowflake-ready dbt models, and scaffolding for Flink/GX/Airflow. Extend each subsystem—especially dbt sources + GE suites—with your upstream lake tables rather than rewriting the façade.
