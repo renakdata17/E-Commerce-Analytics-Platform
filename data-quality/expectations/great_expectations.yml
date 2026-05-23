@@ -1,0 +1,12 @@
+great_expectations:
+  config_version: 3
+datasources:
+  analytics:
+    execution_engine:
+      class_name: PandasExecutionEngine
+    data_connectors:
+      default_connector:
+        class_name: InferredAssetFilesystemDataConnector
+        base_directory: ./data/samples
+        batch_spec_passthrough:
+          reader_method: parquet
