@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+.env
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Local data & secrets
+*.pem
+.secrets/
+
+# IDE
+.idea/
+.vscode/
+
+# dbt / Airflow / dags runtime
+pipelines/airflow/logs/
+pipelines/airflow/plugins/__pycache__/
+pipelines/dbt/target/
+pipelines/dbt/dbt_packages/
+logs/
+
+# MinIO local
+minio-data/
+
+# Java / Flink build
+**/target/
+**/.classpath
+**/.project
